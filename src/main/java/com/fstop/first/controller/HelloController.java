@@ -38,7 +38,6 @@ public class HelloController {
     @PostMapping("/login")
     public ModelAndView login(@RequestParam(value = "account") String account, @RequestParam(value = "password") String password, HttpServletRequest request) {
         Boolean isExists = userDao.existsByEmailAndPassword(account, password);
-
         if (Boolean.TRUE.equals(isExists)) {
             HttpSession session = request.getSession();
             session.setAttribute("userName", account);
