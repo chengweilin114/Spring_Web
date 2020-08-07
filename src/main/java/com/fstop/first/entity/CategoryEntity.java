@@ -16,5 +16,4 @@ public class CategoryEntity implements Serializable {
 
     @Column
     private String bookClass;
-
 }

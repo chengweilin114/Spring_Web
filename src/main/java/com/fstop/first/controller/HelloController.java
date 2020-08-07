@@ -1,10 +1,14 @@
 package com.fstop.first.controller;
 
+
 import com.fstop.first.dao.BookDao;
 import com.fstop.first.dao.CategoryDao;
 import com.fstop.first.dao.UserDao;
 import com.fstop.first.entity.BookEntity;
 import com.fstop.first.entity.CategoryEntity;
+import com.fstop.first.service.CategoryService;
+import com.fstop.first.service.LoginService;
+import com.fstop.first.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -17,18 +21,18 @@ import java.util.Optional;
 @Controller
 public class HelloController {
     private static final String SELECT = "select";
-
-    private final UserDao userDao;
-
-    private final BookDao bookDao;
-
-    private final CategoryDao categoryDao;
-
-    public HelloController(BookDao bookDao, UserDao userDao, CategoryDao categoryDao) {
-        this.bookDao = bookDao;
-        this.userDao = userDao;
-        this.categoryDao = categoryDao;
-    }
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private UserDao userDao;
+    @Autowired
+    private CategoryService categoryService;
+    @Autowired
+    private CategoryDao categoryDao;
+    @Autowired
+    private BookDao bookDao;
+    @Autowired
+    private  LoginService loginService;
 
     @GetMapping("/login")
     public String index() {
@@ -41,6 +45,7 @@ public class HelloController {
         if (Boolean.TRUE.equals(isExists)) {
             HttpSession session = request.getSession();
             session.setAttribute("userName", account);
+            userService.user1(account,password);
             return new ModelAndView("redirect:/select");
         }
         return new ModelAndView("index", "resp", "登入失敗");
@@ -68,8 +73,10 @@ public class HelloController {
             if (categoryId != 0) {
                 Optional<CategoryEntity> categoryEntity = categoryDao.findById(categoryId);
                 categoryEntity.ifPresent(book::setCategory);
+
             }
-            bookDao.save(book);
+            loginService.book3(id);
+            categoryService.category1(id);
         }
 
         return "Success";
@@ -80,11 +87,11 @@ public class HelloController {
         if (category == 0) {
             return new ModelAndView(SELECT,
                     "resp",
-                    bookDao.findBookEntityByBookNameContains(bookName));
+                    loginService.book1(bookName));
         }
         return new ModelAndView(SELECT,
                 "resp",
-                bookDao.findBookEntityByBookNameContainsAndCategoryId(bookName, category));
+                loginService.book2(bookName, category));
     }
 
     @PostMapping("/delete")
@@ -103,6 +110,7 @@ public class HelloController {
         Optional<CategoryEntity> categoryEntity = categoryDao.findById(categoryId);
         categoryEntity.ifPresent(bookEntity::setCategory);
         return bookDao.save(bookEntity);
+
     }
 
     @GetMapping("logout")
